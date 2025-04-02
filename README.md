@@ -4,100 +4,183 @@
   <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Consulta de Notas Fiscais - Hering</title>
+  <title>Consulta de NF - Hering</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f7fa;
+    :root {
+      --cor-primaria: #4285f4;
+      --cor-sucesso: #34a853;
+      --cor-erro: #ea4335;
+      --cor-aviso: #fbbc05;
     }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', Arial, sans-serif;
+    }
+    
+    body {
+      background-color: #f8f9fa;
+      color: #202124;
+      line-height: 1.6;
+      padding: 20px;
+      max-width: 100%;
+    }
+    
     .container {
       background: white;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin: 0 auto;
+      max-width: 600px;
+      overflow: hidden;
+      padding: 30px;
     }
+    
     h1 {
-      color: #2c3e50;
-      text-align: center;
+      color: var(--cor-primaria);
+      font-size: 24px;
       margin-bottom: 25px;
+      text-align: center;
     }
+    
     .form-group {
       margin-bottom: 20px;
     }
+    
     label {
       display: block;
+      font-size: 14px;
+      font-weight: 500;
       margin-bottom: 8px;
-      font-weight: 600;
-      color: #34495e;
     }
+    
     select, input {
-      width: 100%;
-      padding: 12px 15px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
+      background-color: #f8f9fa;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
       font-size: 16px;
+      padding: 12px 15px;
+      width: 100%;
+      transition: border-color 0.3s;
     }
+    
+    select:focus, input:focus {
+      border-color: var(--cor-primaria);
+      outline: none;
+    }
+    
     button {
-      background-color: #4285f4;
-      color: white;
-      padding: 14px;
+      background-color: var(--cor-primaria);
       border: none;
-      border-radius: 6px;
+      border-radius: 4px;
+      color: white;
       cursor: pointer;
       font-size: 16px;
-      width: 100%;
-      font-weight: 600;
-      transition: background-color 0.3s;
+      font-weight: 500;
       margin-top: 10px;
+      padding: 14px;
+      transition: background-color 0.3s;
+      width: 100%;
     }
+    
     button:hover {
       background-color: #3367d6;
     }
+    
     button:disabled {
       background-color: #b8c2cc;
       cursor: not-allowed;
     }
+    
     #loading {
+      align-items: center;
       display: none;
+      flex-direction: column;
+      justify-content: center;
+      margin: 20px 0;
       text-align: center;
-      padding: 20px;
-      color: #555;
     }
+    
+    .spinner {
+      animation: spin 1s linear infinite;
+      border: 3px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top-color: var(--cor-primaria);
+      height: 30px;
+      margin-bottom: 10px;
+      width: 30px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
     #resultado {
+      border-left: 4px solid transparent;
+      border-radius: 4px;
+      display: none;
       margin-top: 25px;
       padding: 20px;
-      border-radius: 8px;
-      display: none;
-      animation: fadeIn 0.5s;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
+    
     .success {
-      background-color: #e8f5e9;
-      border-left: 4px solid #34a853;
+      background-color: #e8f8f5;
+      border-left-color: var(--cor-sucesso);
     }
+    
     .error {
-      background-color: #fce8e6;
-      border-left: 4px solid #ea4335;
+      background-color: #fdedec;
+      border-left-color: var(--cor-erro);
     }
+    
+    .warning {
+      background-color: #fff8e6;
+      border-left-color: var(--cor-aviso);
+    }
+    
+    .result-title {
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+    
+    .result-detail {
+      margin-bottom: 8px;
+    }
+    
     .status {
-      font-weight: 600;
-      padding: 3px 8px;
       border-radius: 4px;
       display: inline-block;
+      font-weight: 500;
+      padding: 2px 8px;
     }
-    .received {
+    
+    .status-received {
       background-color: #c8e6c9;
       color: #388e3c;
     }
-    .pending {
+    
+    .status-pending {
       background-color: #ffe0b2;
       color: #e65100;
+    }
+    
+    .footer {
+      color: #5f6368;
+      font-size: 12px;
+      margin-top: 30px;
+      text-align: center;
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 20px;
+      }
+      
+      h1 {
+        font-size: 20px;
+      }
     }
   </style>
 </head>
@@ -129,31 +212,36 @@
     </form>
     
     <div id="loading">
+      <div class="spinner"></div>
       <p>Consultando banco de dados...</p>
     </div>
     
     <div id="resultado"></div>
+    
+    <div class="footer">
+      Sistema de Consulta de NF - Hering &copy; 2023
+    </div>
   </div>
 
   <script>
-    // Verificação de ambiente - Google Script disponível?
+    // Verificação de ambiente
     if (typeof google === 'undefined') {
       document.getElementById('consultaForm').style.display = 'none';
       document.getElementById('resultado').innerHTML = `
         <div class="error">
-          <h3>Erro de Carregamento</h3>
-          <p>Esta página deve ser acessada através do link do Google Apps Script.</p>
+          <h3 class="result-title">Erro de Carregamento</h3>
+          <p>Esta página deve ser acessada através do link oficial do sistema.</p>
           <p><strong>Como resolver:</strong></p>
           <ol>
-            <li>Publicar como aplicativo web no Google Script</li>
-            <li>Acessar via URL gerada (terminando em /exec)</li>
-            <li>Não abrir o HTML diretamente no navegador</li>
+            <li>Acesse via URL do Google Apps Script (termina em /exec)</li>
+            <li>Não abra o arquivo HTML diretamente no navegador</li>
+            <li>Se você é o administrador, publique corretamente o aplicativo</li>
           </ol>
         </div>
       `;
       document.getElementById('resultado').style.display = 'block';
     } else {
-      // Configuração do formulário quando tudo estiver OK
+      // Configuração quando tudo estiver OK
       document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('consultaForm');
         const btnConsultar = document.getElementById('btnConsultar');
@@ -167,13 +255,25 @@
           const filial = document.getElementById('filial').value;
           const numeroNF = document.getElementById('numeroNF').value.trim();
           
+          // Validação básica
+          if (!filial || !numeroNF) {
+            resultadoDiv.innerHTML = `
+              <div class="warning">
+                <h3 class="result-title">Atenção</h3>
+                <p>Preencha todos os campos corretamente.</p>
+              </div>
+            `;
+            resultadoDiv.style.display = 'block';
+            return;
+          }
+          
           // Mostra loading
           resultadoDiv.style.display = 'none';
-          loadingDiv.style.display = 'block';
+          loadingDiv.style.display = 'flex';
           btnConsultar.disabled = true;
-          btnText.innerHTML = 'PROCESSANDO...';
+          btnText.textContent = 'PROCESSANDO...';
           
-          // Chamada segura para o Google Script
+          // Chamada para o Google Script
           google.script.run
             .withSuccessHandler(function(res) {
               loadingDiv.style.display = 'none';
@@ -186,27 +286,30 @@
               if (res.success) {
                 if (res.encontrada) {
                   resultadoDiv.innerHTML = `
-                    <h3>Nota Fiscal Encontrada</h3>
-                    <p><strong>Filial:</strong> ${filial}</p>
-                    <p><strong>Número NF:</strong> ${numeroNF}</p>
-                    <p><strong>Data Recebimento:</strong> ${res.data || 'Não informada'}</p>
-                    <p><strong>Status:</strong> <span class="status ${res.status === 'RECEBIDA' ? 'received' : 'pending'}">
-                      ${res.status || 'Pendente'}
-                    </span></p>
+                    <h3 class="result-title">Nota Fiscal Encontrada</h3>
+                    <p class="result-detail"><strong>Filial:</strong> ${res.dados.filial}</p>
+                    <p class="result-detail"><strong>Número NF:</strong> ${res.dados.numeroNF}</p>
+                    <p class="result-detail"><strong>Data Recebimento:</strong> ${res.dados.dataRecebimento || 'Não informada'}</p>
+                    <p class="result-detail"><strong>Status:</strong> 
+                      <span class="status ${res.dados.status === 'RECEBIDA' ? 'status-received' : 'status-pending'}">
+                        ${res.dados.status}
+                      </span>
+                    </p>
                   `;
                   resultadoDiv.className = 'success';
                 } else {
                   resultadoDiv.innerHTML = `
-                    <h3>Nota Fiscal Não Encontrada</h3>
+                    <h3 class="result-title">Nota Fiscal Não Encontrada</h3>
                     <p>A nota fiscal <strong>${numeroNF}</strong> não foi encontrada na filial <strong>${filial}</strong>.</p>
-                    <p>Verifique o número ou consulte o responsável.</p>
+                    <p>Verifique o número ou consulte o departamento responsável.</p>
                   `;
-                  resultadoDiv.className = 'error';
+                  resultadoDiv.className = 'warning';
                 }
               } else {
                 resultadoDiv.innerHTML = `
-                  <h3>Erro no Sistema</h3>
+                  <h3 class="result-title">Erro no Sistema</h3>
                   <p>${res.message || 'Erro desconhecido'}</p>
+                  <p>Tente novamente mais tarde.</p>
                 `;
                 resultadoDiv.className = 'error';
               }
@@ -219,9 +322,9 @@
               btnText.textContent = 'CONSULTAR';
               
               resultadoDiv.innerHTML = `
-                <h3>Erro de Comunicação</h3>
+                <h3 class="result-title">Erro de Comunicação</h3>
                 <p>${error.message || 'Falha ao conectar com o servidor'}</p>
-                <p>Tente novamente mais tarde.</p>
+                <p>Por favor, tente novamente.</p>
               `;
               resultadoDiv.className = 'error';
               resultadoDiv.style.display = 'block';
